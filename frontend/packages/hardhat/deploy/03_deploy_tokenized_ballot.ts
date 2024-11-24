@@ -11,7 +11,7 @@ const  proposalType = "Thanksgiving Cake"
 const deployTokenizedBallot: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
-  const tokenizedVote = await import(path.join(path.dirname(__dirname),"deployments/sepolia/TokenizedVote.json")) 
+  const tokenizedVote = await import(path.join(path.dirname(__dirname),`deployments/${hre.config.defaultNetwork}/TokenizedVote.json`)) 
   await deploy("TokenizedBallot", {
     from: deployer,
     log: true,
@@ -22,6 +22,7 @@ const deployTokenizedBallot: DeployFunction = async function (hre: HardhatRuntim
       tokenizedVote.address
     ]
   });
+  console.log('deployer', deployer)
 
 };
 

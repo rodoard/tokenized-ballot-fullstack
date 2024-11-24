@@ -1,15 +1,15 @@
 <script lang="ts">
   import { getBallotProposals, type ProposalsType } from "$lib/api";
-  import { onMount } from "svelte";
   import CastVote from "./CastVote.svelte";
-  let { votingPower = $bindable() }: { votingPower: Number } = $props();
+  import type { Address } from "viem";
+  let { votingPower = $bindable(), address }: { address: Address; votingPower: any } = $props();
   let ballotProposals: ProposalsType = $state({
     proposalType: "",
     proposals: [],
   });
-  const castVote = () => {};
   let casting = $state(false);
-  onMount(() => {
+  $effect(() => {
+    const msg = `votingPower ${votingPower} changed`;
     getBallotProposals().then(proposals => (ballotProposals = proposals));
   });
 </script>
@@ -21,14 +21,14 @@
     </div>
     <div class="grid grid-cols-3 items-center gap-4 text-center">
       <span>Name</span>
-      <span>VoteCount</span>
+      <span></span>
       <span>Vote</span>
     </div>
-    {#each ballotProposals.proposals as { name, voteCount }}
+    {#each ballotProposals.proposals as { name, voteCount, index }}
       <div class="grid grid-cols-3 items-center gap-4 text-center">
         <span>{name}</span>
-        <span>{voteCount}</span>
-        <CastVote {votingPower} {castVote} bind:casting />
+        <span></span>
+        <CastVote {name} {address} bind:votingPower {index} bind:casting />
       </div>
     {/each}
   </div>

@@ -1,24 +1,25 @@
 import { Address, Hex } from "viem";
 import { signTypedData } from "viem/accounts";
-import { sepolia } from "viem/chains";
+import { hardhat, sepolia } from "viem/chains";
 
 type Params = {
   privateKey: Hex,
   contractName:string, contractAddress:`0x${string}`,
-  delegatee:Address, nonce:any, expiry:any
+  delegatee:Address, nonce:any, expiry:any, chain:any
 }
   
 async function getSignature({
   contractName, contractAddress,
   delegatee, nonce, expiry,
-  privateKey
+  privateKey,
+  chain
   }:Params
 ) {
   // Define the EIP-712 domain and types for `delegateBySig`
   const domain = {
     name: contractName,
     version: "1",
-    chainId: sepolia.id,
+    chainId: chain.id,
     verifyingContract: contractAddress,
   };
 

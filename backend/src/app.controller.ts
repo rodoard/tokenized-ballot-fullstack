@@ -4,6 +4,7 @@ import { Address } from 'viem';
 import MintTokenDto from './dto/mintToken.dto';
 import DelegateDto from './dto/delegate.dto';
 import TargetBlockNumberDto from './dto/targetBlockNumber.dto';
+import CastVoteDto from './dto/castVote.dto';
 
 @Controller("/api")
 export class AppController {
@@ -44,7 +45,7 @@ export class AppController {
 
   @Post('mint-tokens')
   async mintTokens(@Body() body: MintTokenDto) {
-    return {result: await this.appService.mintTokens(body.address)};
+    return {result: await this.appService.mintTokens(body.address as Address)};
   }
 
   @Post('ballot-target-block-number')
@@ -55,6 +56,16 @@ export class AppController {
       result: await this.appService.getBallotTargetBlockNumber()
     }
   }
+
+  @Post('ballot-cast-vote')
+  async ballotCastVote(@Body() body: CastVoteDto) {
+    const txHash = await this.appService.ballotCastVote({...body}) 
+    await this.appService.getTransactionReceipt(txHash) 
+    return {
+      result: await this.appService.getBallotVotingPower(body.address as Address)
+    }
+  }
+
 
   @Get('ballot-target-block-number')
   async getBallotTargetBlockNumber() {

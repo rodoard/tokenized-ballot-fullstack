@@ -10,7 +10,7 @@
   const baseUrl = $derived(data.vercelUrl ? `https://${data.vercelUrl}` : `http://localhost:5173`);
 
   const metadata = $derived({
-    title: "Tokenized Ballot DApp",
+    title: "Scaffold-ETH 2 App",
     description: "Built with 🏗 Scaffold-ETH 2",
     thumbnail: `${baseUrl}/thumbnail.jpg`,
     favicon: "/favicon.png",

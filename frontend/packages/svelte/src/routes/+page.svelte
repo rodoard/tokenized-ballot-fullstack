@@ -4,6 +4,7 @@
   import Ballot from "$lib/components/Ballot.svelte";
   import VoteTokens from "$lib/components/VoteTokens.svelte";
   import Voting from "$lib/components/Voting.svelte";
+  import VotingStatus from "$lib/components/VotingStatus.svelte";
   const { address, isConnected } = $derived.by(createAccount());
   let tokenBalance: Number = $state(0);
   let votingPower: Number = $state(0);
@@ -29,6 +30,9 @@
     </div>
     <div class=" grid grid-cols-1 gap-5">
       <Voting bind:votingPower address={address as Address} />
+    </div>
+    <div class=" grid grid-cols-1 gap-5">
+      <VotingStatus {votingPower} />
     </div>
   </div>
 {/if}

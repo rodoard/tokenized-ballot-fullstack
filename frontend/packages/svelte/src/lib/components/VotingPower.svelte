@@ -2,6 +2,7 @@
   import { delegateVotingPower, getVotingPower } from "$lib/api";
   import { fade, fly } from "svelte/transition";
   import type { Address } from "viem";
+  import Voting from "./Voting.svelte";
 
   let { address, votingPower }: { votingPower: Number; address: Address } = $props();
   let delegating = $state(false);

@@ -24,61 +24,44 @@ yarn install
 //.env.example files at each respective directories are provided on what is needed
 
 #deploy tokenized voting token and ballot contracts
-//frontend/packages/hardhat
+//frontend
+yarn chain if using local chain
 yarn deploy
 
 #cp deployments to backend 
 //from backend directory
-cp ../frontend/packages/hardhat/deployments/sepolia/TokenizedVote.json src/assets/
-cp ../frontend/packages/hardhat/deployments/sepolia/TokenizedBallot.json src/assets/
+cp ../frontend/packages/hardhat/deployments/[chain]/TokenizedVote.json src/assets/
+cp ../frontend/packages/hardhat/deployments/[chain]/TokenizedBallot.json src/assets/
 
 #start frontend and backend 
 //backend 
 yarn run start:dev
 //frontend 
-yarn start
+yarn start -> starts svelte frontend 
 
-# voter will own 10 units
-npx hardhat mintToken --contract contractAddressOnSepolia --voter voterAddressOnSepolia  --mint 10 --network sepolia
+#for simplicity assuming hardhat environment as opposed to sepolia and metamask wallet 
+#add deployer to wallet and use deployer account for operations 
 
-#but voting power is 0
-npx hardhat getVotingPower --contract contractAddressOnSepolia --voter voterAddressOnSepolia  --network sepolia
+#on frontend do the following
 
-#depends on env variable SEPOLIA_PRIVATE_KEY on metamask wallet and SEPOLIA_WALLET_ADDRESS 
-#you can create a second address and switch private key and wallet address for different voters
-#script implements self delegate
-npx hardhat delegateVotingPower --contract contractAddressOnSepolia  --network sepolia
+Vote Token screen
+mintTokens
+self delegate power
+update block number
 
-#voting power should now update
-npx hardhat getVotingPower --contract contractAddressOnSepolia --voter voterAddressOnSepolia  --network sepolia
+Ballot screen 
+Set Vote Token Block Number 
 
-#deploy tokenized ballot
-npx hardhat deployTokenizedBallot --proposals commaSeparatedListOfStrings like  "Apple, Banana, Chocolate, Pumpkin"  --token tokenizedVoteTokenAddressOnSepolia  --network sepolia
+This should update ballot voting power 
 
-#get available ballot voting power formatted in ether units should be 0 so far
-npx hardhat getBallotVotingPower --contract ballotContractAddressOnSepolia --voter voterAddressOnSepolia  --network sepolia
+Voting screen
+should show proposals
+with updated ballot voting power
 
-#gets latest block number on chain
-npx hardhat getBlockNumber  --network sepolia
+Ballot Results screen 
+shows ballot results so far
 
-#set ballot target block number 
-npx hardhat setBallotTargetBlockNumber --contract ballotContractAddressOnSepolia  --target targetBlockNumberOnSepolia  --network sepolia 
 
-#get available ballot voting power should not be 0 
-npx hardhat getBallotVotingPower --contract ballotContractAddressOnSepolia --voter voterAddressOnSepolia  --network sepolia
 
-#display available proposals
-npx hardhat getProposals --contract ballotContractAddressOnSepolia --network sepolia
+![screenshot](screenshot.png "screenshot png")
 
-#display vote results no winners since votes not yet cast
-npx hardhat getVoteResults --contract ballotContractAddressOnSepolia --network sepolia
-
-#self castVote 
-npx hardhat castVote --contract ballotContractAddressOnSepolia --proposal proposalIndex --power votingPowerToConsume  --network sepolia
-
-#get available ballot voting power should be less 
-npx hardhat getBallotVotingPower --contract ballotContractAddressOnSepolia --voter voterAddressOnSepolia  --network sepolia
-
-#display vote results
-npx hardhat getVoteResults --contract ballotContractAddressOnSepolia --network sepolia
-```

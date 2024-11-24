@@ -1,17 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Address, createPublicClient, createWalletClient, formatEther, http, parseEther } from "viem"
+import { Address, createPublicClient, createWalletClient, formatEther, http, parseEther, parseUnits } from "viem"
 import { privateKeyToAccount } from 'viem/accounts';
-import { sepolia } from "viem/chains"
+import { hardhat, sepolia } from "viem/chains"
 import {parseSignature} from "viem"
 import { tokenizedBallot, tokenizedVote } from './contracts';
 import { getSignature } from './delegate';
 
 const MINT_VALUE = parseEther("10")
 const TOKENIZED_VOTE_CONTRACT_NAME = "TokenizedVote"
-  
+const CHAINS = {
+  hardhat, 
+  sepolia
+}
+
 @Injectable()
 export class AppService {
+  chain: any;
+  async ballotCastVote({ proposalIndex, votingPower}: { proposalIndex: number; votingPower: number; }) {
+    return await this.writeContract({
+      tokenJson: tokenizedBallot,
+      functionName: "vote",
+      args:[proposalIndex, parseUnits(votingPower.toString(), 18)]
+     })
+  }
   async getBlockNumber() {
     const result = await this.publicClient.getBlockNumber();
     return result.toString()
@@ -32,9 +44,10 @@ export class AppService {
     const { proposalType, proposals } = result 
     return {
       proposalType, 
-      proposals: proposals.map(({ name, voteCount }) => (
+      proposals: proposals.map(({ name, voteCount }, index) => (
         {
-          name, voteCount:voteCount.toString()
+          name, voteCount: Number(formatEther(voteCount.toString())),
+          index
         }
       ))
     }
@@ -56,7 +69,7 @@ export class AppService {
       functionName: "getVotePower",
       args:[address]
        }
-    )
+      )
     return Number(formatEther(power))
   }
 
@@ -85,7 +98,7 @@ export class AppService {
     return await this.publicClient.waitForTransactionReceipt({ hash })
   }
    
-  async mintTokens(address: string) {
+  async mintTokens(address: Address) {
      const txHash = await this.writeContract({
       tokenJson: tokenizedVote,
       functionName: "mint",
@@ -108,7 +121,8 @@ export class AppService {
       contractAddress:tokenizedVote.address as Address,
       delegatee:address ,
       nonce, 
-      expiry
+      expiry,
+      chain:this.chain
     })
       // Split the signature
     const { v, r, s } = parseSignature(signature);
@@ -151,22 +165,18 @@ export class AppService {
       args,
     });
   }
-
   constructor(private configService: ConfigService) {
     const endPointUrl =`${this.env('RPC_ENDPOINT_URL')}${this.env('PROVIDER_API_KEY')}`
+    this.chain = CHAINS[this.env("CHAIN")]
     this.publicClient = createPublicClient({
-      chain: sepolia,
+      chain: this.chain,
       transport: http(endPointUrl),
     });
     const account = privateKeyToAccount(`0x${this.env("PRIVATE_KEY")}`);
     this.walletClient = createWalletClient({
       transport: http(endPointUrl),
-      chain: sepolia,
+      chain:  this.chain,
       account: account,
     });
-  }
-  
-  getHello(): string {
-    return 'Hello World!';
   }
 }

@@ -1,7 +1,25 @@
 <script>
-  let { votingPower = $bindable(), casting } = $props();
+  import { ballotCastVote } from "$lib/api";
+  import { fly, fade } from "svelte/transition";
+
+  let { index, name, address, votingPower = $bindable(), casting = $bindable() } = $props();
   let votes = $state(0);
-  const castVote = () => {};
+  let voted = $state(false);
+  const castVote = async () => {
+    casting = true;
+    voted = false;
+    try {
+      votingPower = await ballotCastVote({
+        proposalIndex: index,
+        votingPower: votes,
+        address,
+      });
+      voted = true;
+      setTimeout(() => (voted = false), 35000);
+    } finally {
+      casting = false;
+    }
+  };
 </script>
 
 <div class="bg-base-200 flex flex-col items-center space-y-4 rounded-lg p-1 shadow-md">
@@ -17,4 +35,9 @@
   >
     Vote
   </button>
+  {#if voted}
+    <p class="text-italic text-center font-semibold text-green-600" in:fly={{ y: 200, duration: 2000 }} out:fade>
+      {`Successfully cast ${votes} power for ${name}.`}
+    </p>
+  {/if}
 </div>

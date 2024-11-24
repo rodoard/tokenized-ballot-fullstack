@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTokenBalance, mintTokens } from "$lib/api";
+  import { mintTokens, getTokenBalance } from "$lib/api";
   import { onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
   import type { Address } from "viem";
@@ -17,7 +17,6 @@
         address,
       }));
       tokenBalance = balance;
-      console.log("min tokens balance", balance);
       tokensMinted = true;
       setTimeout(() => (tokensMinted = false), 3500);
     } finally {

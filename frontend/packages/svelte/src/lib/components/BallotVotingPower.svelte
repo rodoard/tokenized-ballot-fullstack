@@ -1,8 +1,14 @@
 <script lang="ts">
   import { getBallotVotingPower } from "$lib/api";
+  import { onMount } from "svelte";
   import type { Address } from "viem";
-  let { address, votingPower = $bindable() }: { votingPower: Number; address: Address } = $props();
+  let {
+    address,
+    targetBlockNumber,
+    votingPower = $bindable(),
+  }: { targetBlockNumber: string; votingPower: any; address: Address } = $props();
   $effect(() => {
+    const msg = `target block changed ${targetBlockNumber}`;
     getBallotVotingPower({
       address,
     }).then(power => (votingPower = power));

@@ -83,18 +83,39 @@ export async function setBallotTargetBlockNumber(targetNumber:string): Promise<s
   return (response.result);
 }
 
+export async function ballotCastVote({proposalIndex,votingPower, address}:{address:Address, proposalIndex:number, votingPower:number}): Promise<string> {
+  const body = {
+    proposalIndex,
+    votingPower,
+   address
+  }
+  const response = await fetch(
+    apiUrl({ path: `/ballot-cast-vote` }),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body:JSON.stringify(body)
+    }
+  ).then((response) => {
+    return response.json()
+  }) 
+  return (response.result);
+}
 
-type Proposal ={
+
+export type Proposal ={
   name: string,
-    voteCount:string
+  voteCount: number,
+    index:number
   }
 export type ProposalsType = {
   proposalType: string,
   proposals: Proposal[]
 }
 
-export async function getBallotProposals(
-): Promise<ProposalsType> {
+export async function getBallotProposals(): Promise<ProposalsType> {
   const response = await fetch(apiUrl({
     path: `/ballot-proposals`,
   })).then((response) => {
@@ -104,8 +125,8 @@ export async function getBallotProposals(
   const emptyStr = stringToHex("", {size:32})
   return {
     proposalType,
-    proposals: proposals.filter(p => p.name != emptyStr).map(({ name, voteCount }) => ({
-      name:hexToString(name as Address, {size:32}), voteCount
+    proposals: proposals.filter(p => p.name != emptyStr).map(({ name, voteCount, index }) => ({
+      name:hexToString(name as Address, {size:32}), voteCount, index
     }))
   }
 }
